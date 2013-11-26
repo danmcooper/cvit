@@ -1,0 +1,322 @@
+var express = require('express')
+  , app = express.createServer()
+  , passport = require('passport')
+  , util = require('util')
+  , LocalStrategy = require('passport-local').Strategy
+  //, redis = require("redis")
+  //, client = redis.createClient()
+  , mongoose = require('mongoose')
+  , bcrypt = require("bcrypt")
+  , io = require('socket.io').listen(app);
+ 
+
+ /*DB configuration*/
+mongoose.connect('mongodb://localhost/Conversit');
+var aPost = mongoose.model('aPost', new mongoose.Schema({
+  "uid": String,
+  "order": Number,
+  "user": String,
+  "group": String,
+  "type": String,
+  "theATs": Array,
+  "theHASHes": Array,
+  "date": { type: Date, default: Date.now },
+  "content": String
+}));
+var aUser = mongoose.model('aUser', new mongoose.Schema({
+  "username": String,
+  "password": String,
+  "email": String,
+  "id": String,
+  "memberGroups": Array,
+  "ownerGroups": Array,
+  "settings": {}
+}));
+var counters = mongoose.model('counters', new mongoose.Schema({
+  "_id": String,
+  "c": Number
+}));
+
+
+// var counter = new counters({
+//   _id: "group1",
+//   c: 0    
+// });
+// counter.save(function(err) {
+//   if (!err) {
+//     return console.log("created counters");
+//   }
+// });
+// var salt1 = bcrypt.genSaltSync(10);  
+// var hash1 = bcrypt.hashSync("flamethrower", salt1);
+// var salt2 = bcrypt.genSaltSync(10);  
+// var hash2 = bcrypt.hashSync("rache-L", salt2);
+// var salt3 = bcrypt.genSaltSync(10);  
+// var hash3 = bcrypt.hashSync("DanCooper", salt3);
+
+// Haely = new aUser({
+//   username: "Haely",
+//   password: hash2,
+//   email: "haely@conversit.com",
+//   id: "bcdfaa9d-fdea-4b44-8668-1d03028d2b25",
+//   memberGroups: ['HaelysGroup', 'DansGroup', 'HoldensGroup'],
+//   ownerGroups: ['HaelysGroup'],
+//   settings: {}
+// });
+// Haely.save(function(err) {
+//   if (!err) {
+//     return console.log("User Haely created");
+//   }
+// });
+// Holden = new aUser({
+//   username: "Holden",
+//   password: hash1,
+//   email: "holden@conversit.com",
+//   id: "e12110d2-849d-4bb6-bcaa-c1365b4443b5",
+//   memberGroups: ['HaelysGroup', 'DansGroup', 'HoldensGroup'],
+//   ownerGroups: ['HoldensGroup'],
+//   settings: {}
+// });
+// Holden.save(function(err) {
+//   if (!err) {
+//     return console.log("User Holden created");
+//   }
+// });
+// Dan = new aUser({
+//   username: "Dan",
+//   password: hash3,
+//   email: "dan@conversit.com",
+//   id: "473d2335-7581-4ab0-83be-9af13e50b9d1",
+//   memberGroups: ['HaelysGroup', 'DansGroup', 'HoldensGroup'],
+//   ownerGroups: ['DansGroup'],
+//   settings: {}
+// });
+// Dan.save(function(err) {
+//   if (!err) {
+//     return console.log("User Dan created");
+//   }
+// });
+// client.hmset("Holden", "id", "e12110d2-849d-4bb6-bcaa-c1365b4443b5", "username", "Holden", "password", hash1, "email", "Holden@conversit.com");
+// client.hmset("Haely", "id", "bcdfaa9d-fdea-4b44-8668-1d03028d2b25", "username", "Haely", "password", hash2, "email", "Haely@conversit.com");
+// client.hmset("dan", "id", "473d2335-7581-4ab0-83be-9af13e50b9d1", "username", "dan", "password", hash3, "email", "dan@conversit.com");
+// client.set("473d2335-7581-4ab0-83be-9af13e50b9d1", "dan");
+// client.set("e12110d2-849d-4bb6-bcaa-c1365b4443b5", "Holden");
+// client.set("bcdfaa9d-fdea-4b44-8668-1d03028d2b25", "Haely");
+
+function findById(id, fn) {
+  aUser.findOne({id: id}, function(err, user) {
+    if (user) {
+      console.log("found by id");
+      fn(null, user)
+    } else {
+      fn(new Error('User ' + id + ' does not exist'))
+    }
+  });
+}
+
+function findByUsername(username, fn) {
+  aUser.findOne({username: username}, function(err, user) {
+    if (user) {
+      console.log("found by username");      
+      return fn(null, user);
+    } else {
+      return fn(null, null);
+    }
+  });
+}
+
+// Passport session setup.
+//   To support persistent login sessions, Passport needs to be able to
+//   serialize users into and deserialize users out of the session.  Typically,
+//   this will be as simple as storing the user ID when serializing, and finding
+//   the user by ID when deserializing.
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  findById(id, function (err, user) {
+    done(err, user);
+  });
+});
+
+
+// Use the LocalStrategy within Passport.
+//   Strategies in passport require a `verify` function, which accept
+//   credentials (in this case, a username and password), and invoke a callback
+//   with a user object.  In the real world, this would query a database;
+//   however, in this example we are using a baked-in set of users.
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    // asynchronous verification, for effect...
+    process.nextTick(function () {
+      
+      // Find the user by username.  If there is no user with the given
+      // username, or the password is not correct, set the user to `false` to
+      // indicate failure and set a flash message.  Otherwise, return the
+      // authenticated `user`.
+      findByUsername(username, function(err, user) {
+        console.log("got here");
+        if (err) { return done(err); }
+        console.log("got here2");
+        if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
+        console.log("password: " + password + ", user.password: " + user.password);
+        if (!bcrypt.compareSync(password, user.password)) { return done(null, false, { message: 'Invalid password' }); }
+        return done(null, user);
+      })
+    });
+  }
+));
+
+
+
+
+//var app = express.createServer();
+
+// configure Express
+app.configure(function() {
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'ejs');
+  app.use(express.logger());
+  app.use(express.cookieParser());
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(express.session({ secret: 'keyboard cat' }));
+  // Initialize Passport!  Also use passport.session() middleware, to support
+  // persistent login sessions (recommended).
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(app.router);
+  app.use(express.static(__dirname + '/public'));
+});
+
+
+app.get('/', function(req, res){
+  res.render('index', { user: req.user });
+});
+
+app.get('/account', ensureAuthenticated, function(req, res){
+  res.render('account', { user: req.user });
+});
+
+app.get('/login', function(req, res){
+  res.render('login', { user: req.user, message: req.flash('error') });
+});
+
+app.get("/getPosts/:group/:from_order_num/:num_to_get", function(req, res) {
+  if (req.params.from_order_num == 0) {
+    return aPost.find({
+      group: req.params.group   
+    }).sort("date", -1).limit(req.params.num_to_get).execFind(function(err, posts) {  
+      return res.send(posts);
+    });
+  }
+  // else {
+  //   return aPost.find({
+  //     group: req.params.group,
+  //     order: { $gt: req.params.from_order_num - req.params.num_to_get , $lte: req.params.from_order_num }    
+  //   }).sort('date', -1).execFind(function(err, posts) {  
+  //     return res.send(posts);
+  //   });
+  // }
+});
+
+// POST /login
+//   Use passport.authenticate() as route middleware to authenticate the
+//   request.  If authentication fails, the user will be redirected back to the
+//   login page.  Otherwise, the primary route function function will be called,
+//   which, in this example, will redirect the user to the home page.
+//
+//   curl -v -d "username=bob&password=secret" http://127.0.0.1:3000/login
+app.post('/login', 
+  passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
+  function(req, res) {
+    res.redirect('/');
+  });
+  
+// POST /login
+//   This is an alternative implementation that uses a custom callback to
+//   acheive the same functionality.
+/*
+app.post('/login', function(req, res, next) {console.log("created");
+  passport.authenticate('local', function(err, user, info) {
+    if (err) { return next(err) }
+    if (!user) {
+      req.flash('error', info.message);
+      return res.redirect('/login')
+    }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.redirect('/users/' + user.username);
+    });
+  })(req, res, next);
+});
+*/
+
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
+app.listen(3001);
+
+
+//  route middleware to ensure user is authenticated.
+//   Use this route middleware on any resource that needs to be protected.  If
+//   the request is authenticated (typically via a persistent login session),
+//   the request will proceed.  Otherwise, the user will be redirected to the
+//   login page.
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/login')
+}
+
+io.sockets.on('connection', function (socket) {
+  //console.log(socket);
+  socket.on('GroupServer', function (data) {
+
+    // look up user
+    //user = aUser.findOne({username: socket.request.user})
+
+    // see if user belongs to group
+
+    // if so, add post then send
+    //counters.updateOne({_id:"group1"}, {$inc : {c:1}}, {"new":true, upsert:true}, function(item, err) {
+      var post;
+      var newguid = guidGenerator();
+      post = new aPost({
+        order: 1, // todo: fix!
+        user: data.user,
+        group: 'group1',
+        type: 'private',
+        theATs: [],
+        theHASHes: [],
+        date: new Date(),
+        content: data.chat      
+      });
+      post.save(function(err) {
+        if (!err) {
+          return console.log("created");
+        }
+      });
+
+      io.sockets.emit('GroupClient', data);      
+    //});
+  });
+});
+
+function guidGenerator() {
+  var S4 = function() {
+      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    };
+  return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+}
+
+// function counter(name) {
+//     // var test = counters.find({_id:name});
+//     // console.log("test: " + test);
+//     counters.update({_id:name}, {$inc : {c:1}}, {"new":true, upsert:true});
+//     // ret == { "_id" : "users", "next" : 1 }
+//     console.log(counters.findOne({_id:name}));
+//     return counters.findOne({_id:name}).c;
+// }

@@ -1,0 +1,225 @@
+
+<% if (!user) { %>
+  
+  <% if (message) { %>
+    <p><%= message %></p>
+  <% } %>
+<!--   <form action="/login" method="post">
+    <div>
+    <label>Username:</label>
+    <input type="text" name="username"/><br/>
+    </div>
+    <div>
+    <label>Password:</label>
+    <input type="password" name="password"/>
+    </div>
+    <div>
+    <input type="submit" value="Submit"/>
+    </div>
+  </form> -->
+
+
+  <div class="container centered">
+      <div class="content">
+          <div class="row">
+              <div class="login-form">
+                  <h2>Login</h2>
+                  <form action="/login" method="post">
+                      <fieldset>
+                          <div class="clearfix">
+                              <input type="text" placeholder="Username" name="username" id="usernameId">
+                          </div>
+                          <div class="clearfix">
+                              <input type="password" placeholder="Password" name="password">
+                          </div>
+                          <button class="btn btn-primary" type="submit">Sign in</button>
+                      </fieldset>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div> <!-- /container -->
+  <script src="/js/jquery.js"></script>
+  <script>
+    $(document).ready(function(){
+      $("#usernameId").val("").focus(); 
+    });
+  </script>
+<% } else { %>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">C<img src="/img/bubble.png">nversit</a>
+          <div class="btn-group pull-right">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="icon-user"></i> <%= user.username %>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="/account">Account</a></li>
+              <li class="divider"></li>
+              <li><a href="/logout">Sign Out</a></li>
+            </ul>
+          </div>
+          <div class="nav-collapse" style="display:none;">
+            <ul class="nav pull-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">About<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">About Us</a></li>
+                  <li><a href="#">Blog</a></li>                  
+                  <li><a href="#">Contact</a></li>
+                </ul>
+              </li>              
+            </ul>
+          </div>                       
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">[Friends Group 1]<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li class="nav-header">Favorites</li>                  
+                  <li><a href="#">Friends Group 1</a></li>
+                  <li><a href="#">Co-workers</a></li>
+                  <li><a href="#">Econ 101</a></li>
+                  <li class="divider"></li>
+                  <li class="nav-header">All Flows</li>
+                  <li><a href="#">Friends Group 1</a></li>
+                  <li><a href="#">Annoying Friends</a></li>                  
+                  <li><a href="#">Co-workers</a></li>
+                  <li><a href="#">Nerds</a></li>                  
+                  <li><a href="#">Econ 101</a></li>
+                  <li><a href="#">Crazy relatives</a></li>
+                  <li><a href="#">Quantum Physics Symposium</a></li>                                        
+                </ul>
+              </li>
+              <li><a href="/flows">Manage Flows</a></li>              
+              <form class="navbar-search pull-left" action="" style="display:none;">
+                <input type="text" class="search-query span2" placeholder="Search">
+              </form>          
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3" style="height: 550px;">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">Recent Activity - <em>Friends Group 1</em></li>
+              <li><a href="#">Jolea posted to you</a></li>
+              <li><a href="#">John posted to everyone</a></li>
+              <li><a href="#">Bob posted a video</a></li>
+              <li><a href="#">Jimmy posted a link</a></li>
+              <li><a href="#">+100 more posts since your last visit.</a></li>                                                     
+            </ul>
+          </div><!--/.well -->  
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">Recent Activity - <em>All Flows</em></li>
+              <li><a href="#">Jimmy posted a new event - <em>Nerds</em></a></li> 
+              <li><a href="#">Tom posted a new announcement - <em>Econ 101</em></a></li>
+              <li><a href="#">+1000 more posts since your last visit.</a></li>                      
+            </ul>
+          </div><!--/.well -->
+          <div class="well sidebar-nav" style="height: 152px;">
+            <ul class="nav nav-list">
+              <li class="nav-header">Who's Online</li>
+              <li><img src="/img/dan.png">
+                  <span style="width:20px;display:inline-block"></span>
+                  <img src="/img/dan.png">
+                  <span style="width:20px;display:inline-block"></span>
+                  <img src="/img/dan.png">                  
+              </li>
+            </ul>
+          </div>                                                                  
+        </div><!--/span-->
+        <div class="span9">
+          <div class="well" id="the-chat">
+          </div>
+        </div>
+        <div class="span9">
+          <textarea id="myChat"></textarea>
+          <button class="span1" id="sendButton">Send</button>
+        </div>                  
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <div class="row-fluid">
+          <div class="span3">  
+            <p>© Conversit.com 2012</p>
+          </div>
+          <div class="span9">  
+            <p class="pull-right">
+              <a href="/blog">Blog</a> | <a href="/about">About</a> | <a href="/contact">Contact Us</a>
+            </p>
+          </div>          
+        </div>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/js/jquery.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/bootstrap-transition.js"></script>
+    <script src="/js/bootstrap-alert.js"></script>
+    <script src="/js/bootstrap-modal.js"></script>
+    <script src="/js/bootstrap-dropdown.js"></script>
+    <script src="/js/bootstrap-scrollspy.js"></script>
+    <script src="/js/bootstrap-tab.js"></script>
+    <script src="/js/bootstrap-tooltip.js"></script>
+    <script src="/js/bootstrap-popover.js"></script>
+    <script src="/js/bootstrap-button.js"></script>
+    <script src="/js/bootstrap-collapse.js"></script>
+    <script src="/js/bootstrap-carousel.js"></script>
+    <script src="/js/bootstrap-typeahead.js"></script>
+    <script>
+      var socket = io.connect('http://conversit.com:3001');
+      
+      socket.on('GroupClient', function (data) {
+        $("#the-chat").append("<div class='post'><div class='name-section'><a class='btn btn-primary user' href='#''>" + data.user + "</a></div>" + "<div class='text-section'>" + data.chat + "</div></div>");
+          var $theChat = $("#the-chat");
+          var height = $theChat[0].scrollHeight;
+          $theChat.scrollTop(height);          
+      });
+
+      $(document).ready(function(){ 
+        $("#sendButton").on("click", function() {
+          var value = $("#myChat").val();
+          socket.emit("GroupServer", {user: "<%= user.username %>", chat: value});
+          $("#myChat").val("").focus();
+        });
+
+        $.get('/getPosts/group1/0/40', function(data) {
+          for (var i=0; i<data.length; i++) {
+              $("#the-chat").prepend("<div class='post'><div class='name-section'><a class='btn btn-primary user' href='#''>" + data[i].user + "</a></div>" + "<div class='text-section'>" + data[i].content + "</div></div>");
+          };
+          var $theChat = $("#the-chat");
+          var height = $theChat[0].scrollHeight;
+          $theChat.scrollTop(height);          
+        });
+
+        $("#myChat").on('keypress', function(e) {
+          var code = (e.keyCode ? e.keyCode : e.which);
+          if(code == 13) { //Enter keycode
+            $("#sendButton").trigger("click");
+            return false;
+          }
+        });
+        $("#myChat").val("").focus();
+      });
+    </script>
+
+<% } %>

@@ -1,0 +1,39 @@
+#the-chat {
+	overflow: auto;
+	height: 450px;
+}
+
+.post {
+	padding: 7px;
+	border-top: 1px solid lightgray;
+}
+
+.user {
+	border-radius: 14px;
+}
+
+.user-me {
+
+}
+
+.name-section {
+	padding: 5px;
+	width: 80px;
+	display: inline-block;
+}
+
+.text-section {
+	padding: 5px;
+	display: inline;
+}
+
+#myChat {
+	width:90%;
+	height:50px;
+	resize:none;
+}
+
+#sendButton {
+	float:right;
+	height:58px;
+}
